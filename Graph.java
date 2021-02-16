@@ -3,14 +3,17 @@ import java.util.Arrays;
 public class Graph {
   // instance variables
   protected int[][] adjacencyMatrix;
+  protected int order;
 
   // constructors ------------------------------ 
   public Graph(int order) {
-    adjacencyMatrix = new int[order][order];
+    adjacencyMatrix = new int[2*order][2*order];
+    this.order = order;
   }
 
-  public Graph(int[][] adjacencyMatrix) {
-    this.adjacencyMatrix = adjacencyMatrix;
+  public Graph(int order, int[][] adjacencyMatrix) {
+    this.order = order;
+    this.adjacencyMatrix = Arrays.copyOf(adjacencyMatrix, 2*order);
   }
 
   // mutator methods --------------------------- 
@@ -24,25 +27,24 @@ public class Graph {
   }
 
   public void deleteVertex(int v) {
-    adjacencyMatrix[v] = adjacencyMatrix[adjacencyMatrix.length - 1];
-    adjacencyMatrix = Arrays.copyOf(adjacencyMatrix, adjacencyMatrix.length - 1);
-    for (int i = 0; i < adjacencyMatrix.length; i++) {
-      adjacencyMatrix[i][v] = adjacencyMatrix[i][adjacencyMatrix.length - 1];
-      adjacencyMatrix[i] = Arrays.copyOf(adjacencyMatrix[i], adjacencyMatrix.length- 1);
+    adjacencyMatrix[v] = adjacencyMatrix[order - 1];
+    for (int i = 0; i < order; i++) {
+      adjacencyMatrix[i][v] = adjacencyMatrix[i][order - 1]; 
     }
+    order--;
   }
 
   public void contractEdge(int v, int u) {
-    for (int i = 0; i < adjacencyMatrix.length; i++) {
+    for (int i = 0; i < order; i++) {
       adjacencyMatrix[v][i] = Math.max(adjacencyMatrix[v][i], adjacencyMatrix[u][i]); 
     }
     deleteVertex(u);
   }
 
   public void addVertex() {
-    adjacencyMatrix = Arrays.copyOf(adjacencyMatrix, adjacencyMatrix.length+1);
-    for (int i = 0; i < adjacencyMatrix.length; i++) {
-      adjacencyMatrix[i] = Arrays.copyOf(adjacencyMatrix[i], adjacencyMatrix.length+1);
+    order++;
+    if (order >= adjacencyMatrix.length) {
+      adjacencyMatrix = Arrays.copyOf(adjacencyMatrix, 2*order);
     }
   }
 
@@ -74,14 +76,14 @@ public class Graph {
   }
 
   public int getOrder() {
-    return adjacencyMatrix.length;
+    return order;
   }
 
   public int getSize() {
     int degreeSum = 0;
-    for (int[] neighborhood : adjacencyMatrix) {
-      for (int u : neighborhood) {
-         if (0 != u) {
+    for (int v = 0; v < order; v++) {
+      for (int u = 0; u < order; u++) {
+         if (0 != adjacencyMatrix[v][u]) {
            degreeSum++;
          }
       }
@@ -91,8 +93,8 @@ public class Graph {
 
   public int getDegree(int v) {
     int degree = 0;
-    for (int u : adjacencyMatrix[v]) {
-      if (0 != u) {
+    for (int u = 0; u < order; u++) {
+      if (0 != adjacencyMatrix[v][u]) {
         degree++;
       }
     }
@@ -101,7 +103,7 @@ public class Graph {
 
   public int getInDegree(int v) {
     int degree = 0;
-    for (int u = 0; u < adjacencyMatrix.length; u++) {
+    for (int u = 0; u < order; u++) {
       if (isAdjacent(u, v)) {
         degree++;
       }
@@ -111,7 +113,7 @@ public class Graph {
 
   public int getMinimumDegree() {
     int minDegree = Integer.MAX_VALUE;
-    for (int v = 0; v < adjacencyMatrix.length; v++) {
+    for (int v = 0; v < order; v++) {
       minDegree = Math.min(minDegree, getDegree(v));
     }
     return minDegree;
@@ -119,15 +121,15 @@ public class Graph {
 
   public int getMaximumDegree() {
     int maxDegree = 0; 
-    for (int v = 0; v < adjacencyMatrix.length; v++) {
+    for (int v = 0; v < order; v++) {
       maxDegree = Math.max(maxDegree, getDegree(v));
     }
     return maxDegree;
   }
 
   public int[] getDegreeSequence() {
-    int[]  degreeSequence = new int[adjacencyMatrix.length];
-    for (int v = 0; v < adjacencyMatrix.length; v++) {
+    int[]  degreeSequence = new int[order];
+    for (int v = 0; v < order; v++) {
       degreeSequence[v] = getDegree(v);
     }
     return degreeSequence;
@@ -135,8 +137,8 @@ public class Graph {
 
   public int[] getNeighborhood(int v) {
     int degree = 0;
-    int[] neighborhood = new int[adjacencyMatrix.length];
-    for (int u = 0; u < adjacencyMatrix.length; u++) {
+    int[] neighborhood = new int[order];
+    for (int u = 0; u < order; u++) {
       if (isAdjacent(v, u)) {
         neighborhood[degree] = u;
         degree++;
@@ -147,8 +149,8 @@ public class Graph {
 
   public int[] getInNeighborhood(int v) {
     int degree = 0;
-    int[] neighborhood = new int[adjacencyMatrix.length];
-    for (int u = 0; u < adjacencyMatrix.length; u++) {
+    int[] neighborhood = new int[order];
+    for (int u = 0; u < order; u++) {
       if (isAdjacent(u, v)) {
         neighborhood[degree] = u;
         degree++;
@@ -159,13 +161,13 @@ public class Graph {
 
   // subgraph and compelement generators ------- 
   public Graph getCopy() {
-		return new Graph(Arrays.copyOf(adjacencyMatrix, adjacencyMatrix.length));
+		return new Graph(order, adjacencyMatrix);
   }
 
   public Graph getComplement() {
-    Graph complement = new Graph(getOrder());
-    for (int i = 0; i < adjacencyMatrix.length; i++) {
-      for (int j = 0; j < adjacencyMatrix.length; j++) {
+    Graph complement = new Graph(order);
+    for (int i = 0; i < order; i++) {
+      for (int j = 0; j < order; j++) {
         if (false == isAdjacent(i, j)) {
           complement.addEdge(i,j);
         }
