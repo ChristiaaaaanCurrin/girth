@@ -77,6 +77,17 @@ public class Graph {
 
   // graph quearies ---------------------------- 
   // ------------------------------------------- 
+  public String toString() {
+    String edges = "";
+    for (int i = 0; i < order; i++) {
+      for (int j = 0; j < order; j++) {
+        edges = edges + getEdge(i,j) + "\t";
+      }
+      edges = edges + "\n";
+    }
+    return edges;
+  }
+
   public boolean isAdjacent(int v, int u) {
     return 0 != adjacencyMatrix[v][u];
   }
@@ -169,6 +180,87 @@ public class Graph {
     return Arrays.copyOf(neighborhood, degree);
   }
 
+  public int getDistance(int v, int u) {
+    boolean[][] usedEdges = new boolean[order][order];
+    
+    int[] nextCheck = new int[order*order];
+    nextCheck[0] = v;
+    
+    int[] distances = new int[order];
+    Arrays.fill(distances, Integer.MAX_VALUE);
+    distances[v] = 0;
+    
+    int numChecking = 1;
+    while (numChecking > 0) {
+      int nextNumChecking = 0;
+      for (int i = 0; i < numChecking; i++) {
+        v = nextCheck[i];
+        for (int w : getNeighborhood(v)) {
+          if (!usedEdges[v][w]) {
+            distances[w] = Math.min(distances[w], distances[v] + getEdge(v, w));
+            nextCheck[nextNumChecking] = w;
+            nextNumChecking++;
+            usedEdges[v][w] = true;
+          }
+        }
+      }
+      numChecking = nextNumChecking;
+    }
+    return distances[u];
+  }
+
+  public boolean isConnected() {
+    boolean[] checked = new boolean[order];
+    int compOrder = 0;
+    int[] nextCheck = new int[order];
+    nextCheck[0] = 0;
+    
+    int numChecking = 1;
+    while (numChecking > 0) {
+      int nextNumChecking = 0;
+      for (int i = 0; i < numChecking; i++) {
+        int v = nextCheck[i];
+        for (int w : getNeighborhood(v)) {
+          if (!checked[w]) {
+            nextCheck[nextNumChecking] = w;
+            nextNumChecking++;
+            checked[w] = true;
+            compOrder++;
+          }
+        }
+      }
+      numChecking = nextNumChecking;
+    }
+    return compOrder == order;
+  }
+
+  public boolean isConnected(int v, int u) {
+    boolean[] checked = new boolean[order];
+    
+    int[] nextCheck = new int[order];
+    nextCheck[0] = v;
+    
+    int numChecking = 1;
+    while (numChecking > 0) {
+      int nextNumChecking = 0;
+      for (int i = 0; i < numChecking; i++) {
+        v = nextCheck[i];
+        for (int w : getNeighborhood(v)) {
+          if (w == u)  {
+            return true;
+          }
+          if (!checked[w]) {
+            nextCheck[nextNumChecking] = w;
+            nextNumChecking++;
+            checked[w] = true;
+          }
+        }
+      }
+      numChecking = nextNumChecking;
+    }
+    return true;
+  }
+
   // subgraph and compelement generators ------- 
   // ------------------------------------------- 
   public Graph getCopy() { // makes a perfect copy of the graph that is completely independent
@@ -215,7 +307,9 @@ public class Graph {
     Graph g = new Graph(n);
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
-        g.addEdge(i,j);
+        if (i != j) {
+          g.addEdge(i,j);
+        }
       }
     }
     return g;
@@ -225,7 +319,9 @@ public class Graph {
     Graph g = new Graph(n+m);
     for (int i = 0; i < n; i++) {
       for (int j = n; j < n+m; j++) {
-        g.addEdge(i,j);
+        if (i != j) {
+          g.addEdge(i,j);
+        }
       }
     }
     return g;
