@@ -214,7 +214,6 @@ public class Graph {
     int compOrder = 0;
     int[] nextCheck = new int[order];
     nextCheck[0] = 0;
-    
     int numChecking = 1;
     while (numChecking > 0) {
       int nextNumChecking = 0;
@@ -236,10 +235,8 @@ public class Graph {
 
   public boolean isConnected(int v, int u) {
     boolean[] checked = new boolean[order];
-    
     int[] nextCheck = new int[order];
     nextCheck[0] = v;
-    
     int numChecking = 1;
     while (numChecking > 0) {
       int nextNumChecking = 0;
@@ -259,6 +256,31 @@ public class Graph {
       numChecking = nextNumChecking;
     }
     return true;
+  }
+
+  public int[] getComponent(int v) {
+    boolean[] checked = new boolean[order];
+    int[] component = new int[order];
+    int compOrder = 0;
+    int[] nextCheck = new int[order];
+    nextCheck[0] = v;
+    int numChecking = 1;
+    while (numChecking > 0) {
+      int nextNumChecking = 0;
+      for (int i = 0; i < numChecking; i++) {
+        v = nextCheck[i];
+        for (int w : getNeighborhood(v)) {
+          if (!checked[w]) {
+            nextCheck[nextNumChecking] = w;
+            nextNumChecking++;
+            checked[w] = true;
+            compOrder++;
+          }
+        }
+      }
+      numChecking = nextNumChecking;
+    }
+    return Arrays.copyOf(component, compOrder);
   }
 
   // subgraph and compelement generators ------- 
