@@ -6,5 +6,9 @@ public class GraphTester {
     System.out.println(g.isConnected());
     g.addVertex();
     System.out.println(g.isConnected());
+    Graph h = new Graph(1);
+    System.out.println(h.isConnected());
+    h = Graph.completeGraph(2);
+    System.out.println(h.isConnected());
   }
 }

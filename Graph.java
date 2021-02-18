@@ -184,17 +184,18 @@ public class Graph {
     boolean[][] usedEdges = new boolean[order][order];
     
     int[] nextCheck = new int[order*order];
-    nextCheck[0] = v;
     
     int[] distances = new int[order];
     Arrays.fill(distances, Integer.MAX_VALUE);
     distances[v] = 0;
     
+    int[] checking = new int[order*order];
+    checking[0] = v;
     int numChecking = 1;
     while (numChecking > 0) {
       int nextNumChecking = 0;
       for (int i = 0; i < numChecking; i++) {
-        v = nextCheck[i];
+        v = checking[i];
         for (int w : getNeighborhood(v)) {
           if (!usedEdges[v][w]) {
             distances[w] = Math.min(distances[w], distances[v] + getEdge(v, w));
@@ -205,6 +206,7 @@ public class Graph {
         }
       }
       numChecking = nextNumChecking;
+      checking = nextCheck;
     }
     return distances[u];
   }
@@ -234,28 +236,31 @@ public class Graph {
   }
 
   public boolean isConnected(int v, int u) {
-    boolean[] checked = new boolean[order];
-    int[] nextCheck = new int[order];
-    nextCheck[0] = v;
+    boolean[] vertexFound = new boolean[order];
+    int[] checking = new int[order];
+    checking[0] = v;
     int numChecking = 1;
     while (numChecking > 0) {
       int nextNumChecking = 0;
+      int[] nextCheck = new int[order];
+
       for (int i = 0; i < numChecking; i++) {
-        v = nextCheck[i];
+        v = checking[i];
         for (int w : getNeighborhood(v)) {
           if (w == u)  {
             return true;
           }
-          if (!checked[w]) {
+          if (!vertexFound[w]) {
             nextCheck[nextNumChecking] = w;
             nextNumChecking++;
-            checked[w] = true;
+            vertexFound[w] = true;
           }
         }
       }
       numChecking = nextNumChecking;
+      checking = nextCheck;
     }
-    return true;
+    return false;
   }
 
   public int[] getComponent(int v) {
