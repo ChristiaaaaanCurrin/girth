@@ -263,6 +263,7 @@ public class Graph {
     return false;
   }
 
+  // incomplete
   public int[] getComponent(int v) {
     boolean[] checked = new boolean[order];
     int[] component = new int[order];
