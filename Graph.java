@@ -1,4 +1,7 @@
 import java.util.Arrays;
+import java.util.PriorityQueue;
+import java.util.LinkedList;
+import java.util.Comparator;
 
 public class Graph {
   // instance variables ------------------------
@@ -181,112 +184,67 @@ public class Graph {
   }
 
   public int getDistance(int v, int u) {
-    boolean[][] usedEdges = new boolean[order][order];
-    
-    int[] nextCheck = new int[order*order];
-    
+    boolean [] visited = new boolean[order];
     int[] distances = new int[order];
     Arrays.fill(distances, Integer.MAX_VALUE);
     distances[v] = 0;
-    
-    int[] checking = new int[order*order];
-    checking[0] = v;
-    int numChecking = 1;
-    while (numChecking > 0) {
-      int nextNumChecking = 0;
-      for (int i = 0; i < numChecking; i++) {
-        v = checking[i];
-        for (int w : getNeighborhood(v)) {
-          if (!usedEdges[v][w]) {
-            distances[w] = Math.min(distances[w], distances[v] + getEdge(v, w));
-            nextCheck[nextNumChecking] = w;
-            nextNumChecking++;
-            usedEdges[v][w] = true;
-          }
+    ArrayIndexOrdering c = new ArrayIndexOrdering(distances);
+    PriorityQueue<Integer> visiting = new PriorityQueue(order, c); 
+    visiting.add(v);
+    while (visiting.size() > 0) {
+      v = visiting.poll();
+      visited[v] = true;
+      for (int w : getNeighborhood(v)) {
+        distances[w] = Math.min(distances[w], distances[v] + getEdge(v, w));
+        if (u == w) {
+          return distances[u];
         }
-      }
-      numChecking = nextNumChecking;
-      checking = nextCheck;
+        if (!visited[w]) {
+          visiting.add(w);
+        }
+      } 
     }
     return distances[u];
   }
 
-  public boolean isConnected() {
-    boolean[] checked = new boolean[order];
-    int compOrder = 0;
-    int[] nextCheck = new int[order];
-    nextCheck[0] = 0;
-    int numChecking = 1;
-    while (numChecking > 0) {
-      int nextNumChecking = 0;
-      for (int i = 0; i < numChecking; i++) {
-        int v = nextCheck[i];
-        for (int w : getNeighborhood(v)) {
-          if (!checked[w]) {
-            nextCheck[nextNumChecking] = w;
-            nextNumChecking++;
-            checked[w] = true;
-            compOrder++;
-          }
-        }
-      }
-      numChecking = nextNumChecking;
-    }
-    return compOrder == order;
-  }
-
   public boolean isConnected(int v, int u) {
-    boolean[] vertexFound = new boolean[order];
-    int[] checking = new int[order];
-    checking[0] = v;
-    int numChecking = 1;
-    while (numChecking > 0) {
-      int nextNumChecking = 0;
-      int[] nextCheck = new int[order];
-
-      for (int i = 0; i < numChecking; i++) {
-        v = checking[i];
-        for (int w : getNeighborhood(v)) {
-          if (w == u)  {
-            return true;
-          }
-          if (!vertexFound[w]) {
-            nextCheck[nextNumChecking] = w;
-            nextNumChecking++;
-            vertexFound[w] = true;
-          }
+    boolean [] visited = new boolean[order];
+    LinkedList<Integer> visiting = new LinkedList(); 
+    visiting.add(v);
+    while (visiting.size() > 0) {
+      v = visiting.poll();
+      visited[v] = true;
+      for (int w : getNeighborhood(v)) {
+        if (u == w) {
+          return true; 
         }
-      }
-      numChecking = nextNumChecking;
-      checking = nextCheck;
+        if (!visited[w]) {
+          visiting.add(w);
+        }
+      } 
     }
     return false;
   }
 
-  // incomplete
-  public int[] getComponent(int v) {
-    boolean[] checked = new boolean[order];
-    int[] component = new int[order];
-    int compOrder = 0;
-    int[] nextCheck = new int[order];
-    nextCheck[0] = v;
-    int numChecking = 1;
-    while (numChecking > 0) {
-      int nextNumChecking = 0;
-      for (int i = 0; i < numChecking; i++) {
-        v = nextCheck[i];
-        for (int w : getNeighborhood(v)) {
-          if (!checked[w]) {
-            nextCheck[nextNumChecking] = w;
-            nextNumChecking++;
-            checked[w] = true;
-            compOrder++;
-          }
+  public boolean isConnected() {
+    boolean [] visited = new boolean[order];
+    LinkedList<Integer> visiting = new LinkedList(); 
+    visiting.add(0);
+    while (visiting.size() > 0) {
+      Integer v = visiting.poll();
+      visited[v] = true;
+      for (int u : getNeighborhood(v)) {
+        if (!visited[u]) {
+          visiting.add(u);
         }
-      }
-      numChecking = nextNumChecking;
+      } 
     }
-    return Arrays.copyOf(component, compOrder);
+    for (int u = 0; u < order; u++) {
+      if (!visited[u]) {
+        return false;
+      }
+    }
+    return true;
   }
 
   // subgraph and compelement generators ------- 
