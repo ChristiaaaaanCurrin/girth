@@ -362,17 +362,23 @@ public class Graph {
   public Graph getNormalSpanningTree(int root) {
     Graph tree = new Graph(order);
     boolean[] visited = new boolean[order];
-    LinkedList<Integer> visiting = new LinkedList();
-    visiting.add(root);
+    LinkedList<Integer> path = new LinkedList();
+    path.add(root);
 
-    while (0 < visiting.size()) {
-      int v = visiting.poll();
+    while (0 < path.size()) {
+      int v = path.peek();
       visited[v] = true;
+      boolean pathEnd = true;
       for (int u : getNeighborhood(v)) {
         if (!visited[u]) {
           tree.addEdge(v, u, getEdge(v,u));
-          visiting.addLast(u);
+          path.addFirst(u);
+          pathEnd = false;
+          break;
         }
+      }
+      if (pathEnd) {
+        path.poll();
       }
     }
     return tree;
