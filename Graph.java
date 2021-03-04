@@ -207,6 +207,39 @@ public class Graph {
     return distances[u];
   }
 
+  public int[] getDistances(int v) {
+    boolean [] visited = new boolean[order];
+    int[] distances = new int[order];
+    Arrays.fill(distances, Integer.MAX_VALUE);
+    distances[v] = 0;
+    ArrayIndexOrdering c = new ArrayIndexOrdering(distances);
+    PriorityQueue<Integer> visiting = new PriorityQueue(order, c); 
+    visiting.add(v);
+    while (visiting.size() > 0) {
+      v = visiting.poll();
+      visited[v] = true;
+      for (int w : getNeighborhood(v)) {
+        distances[w] = Math.min(distances[w], distances[v] + getEdge(v, w));
+        if (!visited[w]) {
+          visiting.add(w);
+        }
+      } 
+    }
+    return distances;
+  }
+
+  public int getGirth() {
+    Graph g = getCopy();
+    int girth = Integer.MAX_VALUE;
+    for (int v = 0; v < g.order; v++) {
+      for (int u : g.getNeighborhood(v)) {
+        g.deleteEdge(v, u);
+        girth = Math.min(girth - 1, g.getDistance(v, u)) + 1;
+      }
+    }
+    return girth;
+  }
+
   public boolean isConnected(int v, int u) {
     boolean [] visited = new boolean[order];
     LinkedList<Integer> visiting = new LinkedList(); 
@@ -247,17 +280,68 @@ public class Graph {
     return true;
   }
 
+  public int[] getComponent(int v) {
+    boolean[] visited = new boolean[order];
+    LinkedList<Integer> visiting = new LinkedList();
+    visiting.add(v);
+    PriorityQueue<Integer> component = new PriorityQueue(order);
+    component.add(v);
+    int componentOrder = 0;
+
+    while (visiting.size() > 0) {
+      v = visiting.poll();
+      visited[v] = true;
+      componentOrder++;
+      for (int u : getNeighborhood(v)) {
+        if (!visited[u]) {
+          visiting.add(u);
+          component.add(u);
+        }
+      }
+    }
+    int[] returnArray = new int[componentOrder];
+    for (int i = 0; i < componentOrder; i++) {
+      returnArray[i] = component.poll();
+    }
+    return returnArray;
+  }
+
+  public int getComponentOrder(int v) {
+    boolean[] visited = new boolean[order];
+    LinkedList<Integer> visiting = new LinkedList();
+    visiting.add(v);
+    int componentOrder = 0;
+
+    while (visiting.size() > 0) {
+      v = visiting.poll();
+      visited[v] = true;
+      componentOrder++;
+      for (int u : getNeighborhood(v)) {
+        if (!visited[u]) {
+          visiting.add(u);
+        }
+      }
+    }
+  return componentOrder;
+  }
+
   // subgraph and compelement generators ------- 
   // ------------------------------------------- 
   public Graph getCopy() { // makes a perfect copy of the graph that is completely independent
-		return new Graph(order, adjacencyMatrix);
+    Graph copy = new Graph(order); // the constructor creates the empty graph order n by default
+    for (int i = 0; i < order; i++) {
+      for (int j = 0; j < order; j++) {
+        copy.addEdge(i, j, getEdge(i, j)); // copy over all edges
+      }
+    }
+    return copy;
   }
 
   public Graph getComplement() { // creates a copy of the graph where all the edges become non-edges and all the non-edges become eddges
     Graph complement = new Graph(order); // the constructor creates the empty graph order n by default
     for (int i = 0; i < order; i++) {
       for (int j = 0; j < order; j++) {
-        if (false == isAdjacent(i, j)) {
+        if (!isAdjacent(i, j)) {
           complement.addEdge(i,j); // only add edges for non-edges
         }
       }
@@ -269,10 +353,29 @@ public class Graph {
     Graph subGraph = new Graph(vs.length);
     for (int i = 0; i < vs.length; i++) {
       for (int j = 0; j < vs.length; j++) {
-        subGraph.addEdge(i,j, getEdge(i, j)); // add any existing edges between vertices of the subgraph
+        subGraph.addEdge(i,j, getEdge(vs[i], vs[j])); // add any existing edges between vertices of the subgraph
       }
     }
     return subGraph;
+  }
+
+  public Graph getNormalSpanningTree(int root) {
+    Graph tree = new Graph(order);
+    boolean[] visited = new boolean[order];
+    LinkedList<Integer> visiting = new LinkedList();
+    visiting.add(root);
+
+    while (0 < visiting.size()) {
+      int v = visiting.poll();
+      visited[v] = true;
+      for (int u : getNeighborhood(v)) {
+        if (!visited[u]) {
+          tree.addEdge(v, u, getEdge(v,u));
+          visiting.addLast(u);
+        }
+      }
+    }
+    return tree;
   }
 
   // graph operators --------------------------- 
@@ -282,6 +385,31 @@ public class Graph {
     for (int i = 0; i < h.getOrder(); i++) {
       for (int j = 0; j < h.getOrder(); j++) {
         h.addEdge(i, j, Math.max(g1.getEdge(i, j), g2.getEdge(i, j)));
+      }
+    }
+    return h;
+  }
+
+  public static Graph graphIntersection(Graph g1, Graph g2) {
+    Graph h = new Graph(Math.min(g1.getOrder(), g2.getOrder()));
+    for (int i = 0; i < h.getOrder(); i++) {
+      for (int j = 0; j < h.getOrder(); j++) {
+        h.addEdge(i, j, Math.min(g1.getEdge(i, j), g2.getEdge(i, j)));
+      }
+    }
+    return h;
+  }
+
+  public static Graph graphSum(Graph g1, Graph g2, int shift) {
+    Graph h = new Graph(g1.getOrder() + g2.getOrder() + shift);
+    for (int i = 0; i < g1.getOrder(); i++) {
+      for (int j = 0; j < g1.getOrder(); j++) {
+        h.addEdge(i, j, g1.getEdge(i,j));
+      }
+    }
+    for (int i = 0; i < g2.getOrder(); i++) {
+      for (int j = 0; j < g2.getOrder(); j++) {
+        h.addEdge(i + shift, j + shift, g2.getEdge(i, j));
       }
     }
     return h;
@@ -324,6 +452,30 @@ public class Graph {
   public static Graph cycleGraph(int n) {
     Graph g = pathGraph(n);
     g.addEdge(0, n-1);
+    return g;
+  }
+
+  public static Graph generalizedPetersonGraph(int n, int k) {
+    Graph g = new Graph(2 * n);
+    for (int i = 0; i < n; i++) {
+      g.addEdge(i, (i+1) % n);
+      g.addEdge(i, i+n);
+      g.addEdge(i + n, ((i+k) % n) + n);
+    }
+    return g;
+  }
+
+  public static Graph petersonGraph() {
+    return generalizedPetersonGraph(5,2);
+  }
+
+  public static Graph completeBipartiteGraph(int m, int n) {
+    Graph g = new Graph(m + n);
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        g.addEdge(i, m+j);
+      }
+    }
     return g;
   }
 }

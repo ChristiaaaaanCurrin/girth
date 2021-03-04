@@ -1,5 +1,37 @@
+====INFO DUMP====
 0	1	1	
 1	0	1	
 1	1	0	
-
-1
+order: 3
+size: 3
+degree sequence: {2, 2, 2, }
+is connected: true
+girth: 3
+====INFO DUMP====
+0	1	1	0	
+1	0	1	0	
+1	1	0	0	
+0	0	0	0	
+order: 4
+size: 3
+degree sequence: {2, 2, 2, 0, }
+is connected: false
+girth: 3
+====INFO DUMP====
+0	1	0	0	0	1	1	0	0	0	0	0	
+1	0	1	0	0	0	0	1	0	0	0	0	
+0	1	0	1	0	0	0	0	1	0	0	0	
+0	0	1	0	1	0	0	0	0	1	0	0	
+0	0	0	1	0	1	0	0	0	0	1	0	
+1	0	0	0	1	0	0	0	0	0	0	1	
+1	0	0	0	0	0	0	0	1	0	1	0	
+0	1	0	0	0	0	0	0	0	1	0	1	
+0	0	1	0	0	0	1	0	0	0	1	0	
+0	0	0	1	0	0	0	1	0	0	0	1	
+0	0	0	0	1	0	1	0	1	0	0	0	
+0	0	0	0	0	1	0	1	0	1	0	0	
+order: 12
+size: 18
+degree sequence: {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, }
+is connected: true
+girth: 3
