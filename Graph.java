@@ -240,6 +240,16 @@ public class Graph {
     return girth;
   }
 
+  public int getDiameter() {
+    int diameter = 0;
+    for (int i = 0; i < order; i++) {
+      for (int j = 0; j < order; j++) {
+        diameter = Math.max(diameter, getDistance(i,j));
+      }
+    }
+    return diameter;
+  }
+
   public boolean isConnected(int v, int u) {
     boolean [] visited = new boolean[order];
     LinkedList<Integer> visiting = new LinkedList();
@@ -325,6 +335,34 @@ public class Graph {
   return componentOrder;
   }
 
+  public boolean isPath() {
+    return 1 == getMinimumDegree() && 2 == getMaximumDegree() && isConnected();
+  }
+
+  public boolean isPaths() {
+    return 1 == getMinimumDegree() && 2 == getMaximumDegree();
+  }
+
+  public boolean isTree() {
+    return getSize() == order - 1 && isConnected();
+  }
+
+  public boolean isForest() {
+    return Integer.MAX_VALUE == getGirth();
+  }
+
+  public boolean isCycle() {
+    return 2 == getMinimumDegree() && 2 == getMaximumDegree() && isConnected();
+  }
+
+  public boolean isCycles() {
+    return 2 == getMinimumDegree() && 2 == getMaximumDegree();
+  }
+
+  public boolean isCubic() {
+    return 3 == getMinimumDegree() && 3 == getMaximumDegree();
+  }
+
   // subgraph and compelement generators ------- 
   // ------------------------------------------- 
   public Graph getCopy() { // makes a perfect copy of the graph that is completely independent
@@ -401,7 +439,7 @@ public class Graph {
     Graph lineGraph = new Graph(size);
     for (int e = 0; e < size; e++) {
       for (int f = 0; f < size; f++) {
-        if (edgeStart[e] == edgeStart[f] || edgeEnd[e] == edgeEnd[f]) {
+        if ((edgeStart[e] == edgeStart[f] ^ edgeEnd[e] == edgeEnd[f]) || (edgeStart[e] == edgeEnd[f] ^ edgeEnd[e] == edgeStart[f])) {
           lineGraph.addEdge(e, f);
         }
       }
@@ -412,11 +450,11 @@ public class Graph {
   // graph operators --------------------------- 
   // ------------------------------------------- 
 
-  public static boolean equalTo(Graph g1, Graph g2) {
-    if (g1.getOrder() != g2.getOrder) {
+  public static boolean isEqual(Graph g1, Graph g2) {
+    if (g1.getOrder() != g2.getOrder()) {
       return false;
     }
-    for (int i < 0; i < g1.getOrder(); i++) {
+    for (int i = 0; i < g1.getOrder(); i++) {
       for (int j = 0; j < g1.getOrder(); j++) {
         if (g1.getEdge(i, j) != g2.getEdge(i, j)) {
           return false;

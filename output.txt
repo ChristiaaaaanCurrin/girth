@@ -6,6 +6,12 @@ order: 3
 size: 3
 degree sequence: {2, 2, 2, }
 is connected: true
+is tree: false
+is forest: false
+is path: false
+is paths: false
+is cycle: true
+is cycles: true
 girth: 3
 ====INFO DUMP====
 0	1	1	0	
@@ -16,6 +22,12 @@ order: 4
 size: 3
 degree sequence: {2, 2, 2, 0, }
 is connected: false
+is tree: false
+is forest: false
+is path: false
+is paths: false
+is cycle: false
+is cycles: false
 girth: 3
 ====INFO DUMP====
 0	1	0	0	1	1	0	0	0	0	
@@ -32,6 +44,12 @@ order: 10
 size: 15
 degree sequence: {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, }
 is connected: true
+is tree: false
+is forest: false
+is path: false
+is paths: false
+is cycle: false
+is cycles: false
 girth: 5
 ====INFO DUMP====
 0	1	0	0	0	0	0	0	0	0	
@@ -48,4 +66,31 @@ order: 10
 size: 9
 degree sequence: {1, 2, 2, 2, 2, 2, 2, 1, 2, 2, }
 is connected: true
+is tree: true
+is forest: true
+is path: true
+is paths: true
+is cycle: false
+is cycles: false
+girth: 2147483647
+====INFO DUMP====
+0	1	0	0	0	0	0	0	0	
+1	0	1	0	0	0	0	0	0	
+0	1	0	1	0	0	0	0	0	
+0	0	1	0	1	0	0	0	0	
+0	0	0	1	0	0	0	0	1	
+0	0	0	0	0	0	1	0	0	
+0	0	0	0	0	1	0	1	0	
+0	0	0	0	0	0	1	0	1	
+0	0	0	0	1	0	0	1	0	
+order: 9
+size: 8
+degree sequence: {1, 2, 2, 2, 2, 1, 2, 2, 2, }
+is connected: true
+is tree: true
+is forest: true
+is path: true
+is paths: true
+is cycle: false
+is cycles: false
 girth: 2147483647

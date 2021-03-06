@@ -8,6 +8,8 @@ public class GraphTester {
     infoDump(h);
     Graph t = h.getNormalSpanningTree(0);
     infoDump(t);
+    Graph l = t.getLineGraph();
+    infoDump(l);
   }
 
   public static void infoDump(Graph g) {
@@ -19,6 +21,12 @@ public class GraphTester {
     for (int d : g.getDegreeSequence()) {System.out.print(d + ", ");}
     System.out.println("}");
     System.out.println("is connected: " + g.isConnected());
+    System.out.println("is tree: " + g.isTree());
+    System.out.println("is forest: " + g.isForest());
+    System.out.println("is path: " + g.isPath());
+    System.out.println("is paths: " + g.isPaths());
+    System.out.println("is cycle: " + g.isCycle());
+    System.out.println("is cycles: " + g.isCycles());
     System.out.println("girth: " + g.getGirth());
   }
 }
