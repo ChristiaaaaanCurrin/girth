@@ -229,12 +229,20 @@ public class Graph {
   }
 
   public int getGirth() {
+    for (int v = 0; v < order; v++) {
+      if (isAdjacent(v,v)) {
+        return 0;
+      }
+    }
     Graph g = getCopy();
     int girth = Integer.MAX_VALUE;
     for (int v = 0; v < g.order; v++) {
       for (int u : g.getNeighborhood(v)) {
         g.deleteEdge(v, u);
         girth = Math.min(girth - 1, g.getDistance(v, u)) + 1;
+        if (girth == 3) {
+          return girth;
+        }
       }
     }
     return girth;
