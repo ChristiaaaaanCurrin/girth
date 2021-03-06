@@ -242,19 +242,19 @@ public class Graph {
 
   public boolean isConnected(int v, int u) {
     boolean [] visited = new boolean[order];
-    LinkedList<Integer> visiting = new LinkedList(); 
+    LinkedList<Integer> visiting = new LinkedList();
     visiting.add(v);
     while (visiting.size() > 0) {
       v = visiting.poll();
       visited[v] = true;
       for (int w : getNeighborhood(v)) {
         if (u == w) {
-          return true; 
+          return true;
         }
         if (!visited[w]) {
           visiting.add(w);
         }
-      } 
+      }
     }
     return false;
   }
@@ -270,7 +270,7 @@ public class Graph {
         if (!visited[u]) {
           visiting.add(u);
         }
-      } 
+      }
     }
     for (int u = 0; u < order; u++) {
       if (!visited[u]) {
@@ -287,7 +287,7 @@ public class Graph {
     PriorityQueue<Integer> component = new PriorityQueue(order);
     component.add(v);
     int componentOrder = 0;
-
+    
     while (visiting.size() > 0) {
       v = visiting.poll();
       visited[v] = true;
@@ -364,7 +364,6 @@ public class Graph {
     boolean[] visited = new boolean[order];
     LinkedList<Integer> path = new LinkedList();
     path.add(root);
-
     while (0 < path.size()) {
       int v = path.peek();
       visited[v] = true;
@@ -384,8 +383,49 @@ public class Graph {
     return tree;
   }
 
+  public Graph getLineGraph() {
+    boolean[][] visited = new boolean[order][order];
+    int[] edgeStart = new int[order*order];
+    int[] edgeEnd = new int[order*order];
+    int size = 0;
+    for (int v = 0; v < order; v++) {
+      for (int u : getNeighborhood(v)) {
+        if (!visited[v][u]) {
+          edgeStart[size] = v;
+          edgeEnd[size] = u;
+          visited[u][v] = true;
+          size++;
+        }
+      }
+    }
+    Graph lineGraph = new Graph(size);
+    for (int e = 0; e < size; e++) {
+      for (int f = 0; f < size; f++) {
+        if (edgeStart[e] == edgeStart[f] || edgeEnd[e] == edgeEnd[f]) {
+          lineGraph.addEdge(e, f);
+        }
+      }
+    }
+   return lineGraph;
+  }
+
   // graph operators --------------------------- 
   // ------------------------------------------- 
+
+  public static boolean equalTo(Graph g1, Graph g2) {
+    if (g1.getOrder() != g2.getOrder) {
+      return false;
+    }
+    for (int i < 0; i < g1.getOrder(); i++) {
+      for (int j = 0; j < g1.getOrder(); j++) {
+        if (g1.getEdge(i, j) != g2.getEdge(i, j)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   public static Graph graphSum(Graph g1, Graph g2) {
     Graph h = new Graph(Math.max(g1.getOrder(), g2.getOrder()));
     for (int i = 0; i < h.getOrder(); i++) {
