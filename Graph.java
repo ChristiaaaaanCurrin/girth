@@ -3,11 +3,12 @@ import java.util.PriorityQueue;
 import java.util.LinkedList;
 import java.util.Comparator;
 
-public class Graph {
+public class Graph<V> {
   // instance variables ------------------------
   // ------------------------------------------- 
   protected int[][] adjacencyMatrix; // this array is always bigger than the order of the graph in both dimensions
   protected int order;               // order is the number of vertices in the graph
+  protected V[] vertexLabels;   // this can be used by an agregator to keep track of the vertices
 
   // constructors ------------------------------ 
   // ------------------------------------------- 
@@ -21,8 +22,19 @@ public class Graph {
     this.adjacencyMatrix = Arrays.copyOf(adjacencyMatrix, 2*order);
   }
 
+  public Graph(int order, int[][] adjacencyMatrix, V[] vertexLabels) {
+    this.order = order;
+    this.adjacencyMatrix = Arrays.copyOf(adjacencyMatrix, 2*order);
+    this.vertexLabels    = Arrays.copyOf(vertexLabels,    2*order);
+  }
+
   // mutator methods --------------------------- 
   // ------------------------------------------- 
+
+  public void setVertexLabels(V[] vertexLabels) {
+    this.vertexLabels = vertexLabels;
+  }
+
   public void deleteEdge(int v, int u) {
     adjacencyMatrix[v][u] = 0;
     adjacencyMatrix[u][v] = 0;
@@ -34,6 +46,7 @@ public class Graph {
 
   public void deleteVertex(int v) {
     adjacencyMatrix[v] = adjacencyMatrix[order - 1]; // replace deleted vertex with last vertex
+    vertexLabels[v] = vertexLabels[order - 1];       // update vertex labels
     for (int i = 0; i < order; i++) {
       adjacencyMatrix[i][v] = adjacencyMatrix[i][order - 1]; // replace deleted vertex with last vertex for all  neighborhoods
     }
@@ -52,7 +65,11 @@ public class Graph {
     order++;
     if (order >= adjacencyMatrix.length) {
       adjacencyMatrix = Arrays.copyOf(adjacencyMatrix, 2*order); // if adjacencyMatrix is not big enough, double it
+      for (int v = 0; v < order; v++) {
+        adjacencyMatrix[v] = Arrays.copyOf(adjacencyMatrix[v], 2*order); // also double all the neighborhood arrays
+      }
     }
+    vertexLabels = Arrays.copyOf(vertexLabels, 2*order); // update vertex labels
   }
 
   public void addEdge(int v, int u) {
@@ -89,6 +106,10 @@ public class Graph {
       edges = edges + "\n";
     }
     return edges;
+  }
+
+  public V[] getVertexLabels() {
+    return vertexLabels;
   }
 
   public boolean isAdjacent(int v, int u) {
