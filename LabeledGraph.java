@@ -3,53 +3,44 @@ import java.util.PriorityQueue;
 import java.util.LinkedList;
 import java.util.Comparator;
 
-public class Graph {
+public class LabeledGraph<V> extends Graph {
   // instance variables ------------------------
   // ------------------------------------------- 
-  protected int[][] adjacencyMatrix; // this array is always bigger than the order of the graph in both dimensions
-  protected int order;               // order is the number of vertices in the graph
+  protected V[] vertexLabels;   // this can be used by other classes to keep track of the vertices
 
   // constructors ------------------------------ 
   // ------------------------------------------- 
-  public Graph() {
-    order = 1;
-    adjacencyMatrix = new int[2*order][2*order];
-  }
-  public Graph(int order) {
-    this.order = order;
-    adjacencyMatrix = new int[2*order][2*order];
-  }
-
-  public Graph(int order, int[][] adjacencyMatrix) {
+  public Graph(int order, int[][] adjacencyMatrix, V[] vertexLabels) {
     this.order = order;
     this.adjacencyMatrix = Arrays.copyOf(adjacencyMatrix, 2*order);
+    this.vertexLabels    = Arrays.copyOf(vertexLabels,    2*order);
   }
 
   // mutator methods --------------------------- 
   // ------------------------------------------- 
-  public void deleteEdge(int v, int u) {
-    adjacencyMatrix[v][u] = 0;
-    adjacencyMatrix[u][v] = 0;
-  }
-
-  public void deleteDirectedEdge(int v, int u) {
-    adjacencyMatrix[v][u] = 0;
+  public void setVertexLabels(V[] vertexLabels) {
+    this.vertexLabels = vertexLabels;
   }
 
   public void deleteVertex(int v) {
     adjacencyMatrix[v] = adjacencyMatrix[order - 1]; // replace deleted vertex with last vertex
+    vertexLabels[v] = vertexLabels[order - 1];       // update vertex labels
     for (int i = 0; i < order; i++) {
       adjacencyMatrix[i][v] = adjacencyMatrix[i][order - 1]; // replace deleted vertex with last vertex for all  neighborhoods
     }
     order--; // deleted vertex means that the order decreases by 1
   }
 
-  public void contractEdge(int v, int u) {
-    for (int i = 0; i < order; i++) {
-      adjacencyMatrix[v][i] = Math.max(adjacencyMatrix[v][i], adjacencyMatrix[u][i]); // combine all edges out of v and u
-      adjacencyMatrix[i][v] = Math.max(adjacencyMatrix[i][v], adjacencyMatrix[i][u]); // combine all edges into v and u
+  public void addVertex(V label) {
+    order++;
+    if (order >= adjacencyMatrix.length) {
+      adjacencyMatrix = Arrays.copyOf(adjacencyMatrix, 2*order); // if adjacencyMatrix is not big enough, double it
+      for (int v = 0; v < order; v++) {
+        adjacencyMatrix[v] = Arrays.copyOf(adjacencyMatrix[v], 2*order); // also double all the neighborhood arrays
+      }
+      vertexLabels = Arrays.copyOf(vertexLabels, 2*order); // update vertex labels
     }
-    deleteVertex(u); // vertex u is now redundant with vertex v
+    vertexLabels[order] = label;
   }
 
   public void addVertex() {
@@ -60,29 +51,13 @@ public class Graph {
         adjacencyMatrix[v] = Arrays.copyOf(adjacencyMatrix[v], 2*order); // also double all the neighborhood arrays
       }
     }
-  }
-
-  public void addEdge(int v, int u) {
-    adjacencyMatrix[v][u] = 1;
-    adjacencyMatrix[u][v] = 1;
-  }
-
-  public void addDirectedEdge(int v, int u) {
-    adjacencyMatrix[v][u] = 1;
-  }
-
-  public void addEdge(int v, int u, int w) {
-    adjacencyMatrix[v][u] = w;
-    adjacencyMatrix[u][v] = w;
-  }
-
-  public void addDirectedEdge(int v, int u, int w) {
-    adjacencyMatrix[v][u] = w;
+    vertexLabels = Arrays.copyOf(vertexLabels, 2*order); // update vertex labels
   }
 
   public void swapVertices(int v, int u) {
-    int[] vN = adjacencyMatrix[v], uN = adjacencyMatrix[u];
-    adjacencyMatrix[v] = uN; adjacencyMatrix[u] = vN;
+    int[] vN = adjacencyMatrix[v], vL = vertexLabels[v];
+    adjacencyMatrix[v] = adjacencyMatrix[u]; adjacencyMatrix[u] = vN;
+       vertexLabels[v] =    vertexLabels[u]; vertexLabels[u] = vL;
   }
 
   // graph quearies ---------------------------- 
@@ -96,6 +71,10 @@ public class Graph {
       edges = edges + "\n";
     }
     return edges;
+  }
+
+  public V[] getVertexLabels() {
+    return vertexLabels;
   }
 
   public boolean isAdjacent(int v, int u) {
@@ -350,29 +329,8 @@ public class Graph {
   return componentOrder;
   }
 
-  public boolean isRegular(int k) {
-    for (int v = 0; v < order; v++) {
-      if (getDegree(v) != k) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  public boolean isRegular() {
-    return isRegular(getDegree(0));
-  }
-
-  public boolean isCycle() {
-    return isRegular(2) && isConnected();
-  }
-
-  public boolean isCubic() {
-    return isRegular(3);
-  }
-
   public boolean isPath() {
-    return isPaths() && isConnected();
+    return 1 == getMinimumDegree() && 2 == getMaximumDegree() && isConnected();
   }
 
   public boolean isPaths() {
@@ -385,6 +343,18 @@ public class Graph {
 
   public boolean isForest() {
     return Integer.MAX_VALUE == getGirth();
+  }
+
+  public boolean isCycle() {
+    return 2 == getMinimumDegree() && 2 == getMaximumDegree() && isConnected();
+  }
+
+  public boolean isCycles() {
+    return 2 == getMinimumDegree() && 2 == getMaximumDegree();
+  }
+
+  public boolean isCubic() {
+    return 3 == getMinimumDegree() && 3 == getMaximumDegree();
   }
 
   // subgraph and compelement generators ------- 
@@ -525,10 +495,6 @@ public class Graph {
 
   // elementary graphs ------------------------- 
   // ------------------------------------------- 
-  public static Graph emptyGraph(int n) {
-    return new Graph(n);
-  }
-
   public static Graph completeGraph(int n) {
     Graph g = new Graph(n);
     for (int i = 0; i < n; i++) {
@@ -567,7 +533,7 @@ public class Graph {
     return g;
   }
 
-  public static Graph petersonGraph(int n, int k) {
+  public static Graph generalizedPetersonGraph(int n, int k) {
     Graph g = new Graph(2 * n);
     for (int i = 0; i < n; i++) {
       g.addEdge(i, (i+1) % n);
@@ -578,6 +544,16 @@ public class Graph {
   }
 
   public static Graph petersonGraph() {
-    return petersonGraph(5,2);
+    return generalizedPetersonGraph(5,2);
+  }
+
+  public static Graph completeBipartiteGraph(int m, int n) {
+    Graph g = new Graph(m + n);
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        g.addEdge(i, m+j);
+      }
+    }
+    return g;
   }
 }

@@ -9,7 +9,6 @@ public class GraphPane extends AnchorPane {
   public GraphPane() {
     Graph graph = new Graph(3);
     Circle vertex = new Circle(100, 100, 10);
-    DragController drag = new DragController(vertex, true);
     getChildren().add(vertex);
   } 
 }

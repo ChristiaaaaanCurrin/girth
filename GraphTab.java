@@ -10,29 +10,25 @@ import javafx.scene.Scene;
 
 public class Girth extends Application {
   // instance varibles
-  private GraphWrapper graphWrapper;
+  private Graph graph;
   
   public void start(Stage primaryStage) {
-    graphWrapper = new GraphWrapper(new Graph(1));
 
     // create GraphPane
     GraphPane graphPane = new GraphPane();
 
     // create queryPane 
     VBox queryPane = new VBox();
-    queryPane.getChildren().add(new Label("graph queries"));
-    for (int i = 0; i < 9; i++) {
-      QueryBox queryBox = new QueryBox(graphWrapper);
+    queryPane.getChildren().add(new Label("graph details"));
+    for (int i = 0; i < 5; i++) {
+      QueryBox queryBox = new QueryBox();
       queryPane.getChildren().add(queryBox);
     }
-
-    BuildPane buildPane = new BuildPane(graphWrapper);
 
     // create rootPane and add children
     BorderPane rootPane = new BorderPane();
     rootPane.setCenter(graphPane);
     rootPane.setRight(queryPane);
-    rootPane.setBottom(buildPane);
 
     // Create a scene and place rootPane in the stage
     Scene scene = new Scene(rootPane, 630, 540);
