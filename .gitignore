@@ -1,3 +1,23 @@
-*.swp
-.class
+# These are the files that I do not want to commit
+
+# LaTeX process files 
+*.aux
+*.log
+*.pdf
+
+# Vim swap files
+*.sw?
+
+# Java class files
+*.class
+
+# Picture and Moview files
+*.png
+*.mov
+
+# Package files
+*.zip
+
+# External Dependencies
 javafx*
+com*
