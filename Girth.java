@@ -13,25 +13,21 @@ public class Girth extends Application {
   private GraphWrapper graphWrapper;
   
   public void start(Stage primaryStage) {
-    graphWrapper = new GraphWrapper(new Graph(1));
+    graphWrapper = new GraphWrapper(Graph.completeGraph(3));
 
-    // create GraphPane
-    GraphPane graphPane = new GraphPane();
-
-    // create queryPane 
-    VBox queryPane = new VBox();
-    queryPane.getChildren().add(new Label("graph queries"));
-    for (int i = 0; i < 9; i++) {
-      QueryBox queryBox = new QueryBox(graphWrapper);
-      queryPane.getChildren().add(queryBox);
-    }
-
+    // create drawing pane, query box, build pane
+    DrawingPane drawingPane = new DrawingPane(graphWrapper);
+    QueryPane queryBox = new QueryPane(graphWrapper);
     BuildPane buildPane = new BuildPane(graphWrapper);
+
+    // add listeners to graph wrapper
+    graphWrapper.addListener(drawingPane);
+    graphWrapper.addListener(queryBox);
 
     // create rootPane and add children
     BorderPane rootPane = new BorderPane();
-    rootPane.setCenter(graphPane);
-    rootPane.setRight(queryPane);
+    rootPane.setCenter(drawingPane);
+    rootPane.setRight(queryBox);
     rootPane.setBottom(buildPane);
 
     // Create a scene and place rootPane in the stage

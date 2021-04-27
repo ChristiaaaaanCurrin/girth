@@ -10,39 +10,62 @@ import javafx.collections.FXCollections;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
+import java.util.List;
+import java.util.LinkedList;
 
 public class BuildPane extends VBox {
   private GraphWrapper graphWrapper;
   private String state;
-  private Button button;
   private ComboBox cbox;
   private Label warning;
   private TextField input;
 
   public BuildPane(GraphWrapper gw) {
     graphWrapper = gw;
+    
+    HBox editGraphHBox = new HBox();
+    Button deleteButton = new Button("delete");
+    Button addButton = new Button("add");
+    Button buildButton;
+
     state = "complete";
-    HBox hbox = new HBox();
-    cbox = new ComboBox(FXCollections.observableArrayList("complete", "cycle", "path", "peterson", "empty"));
+    HBox newGraphHBox = new HBox();
+    cbox = new ComboBox(FXCollections.observableArrayList("complete", "cycle", "path", "peterson", "empty", "mycielski",
+                                                          "line", "complement"));
     input = new TextField();
-    button = new Button("build graph");
+    buildButton = new Button("build graph");
     warning = new Label("");
 
     setPadding(new Insets(20));
     setSpacing(10);
-    hbox.setSpacing(10);
+    editGraphHBox.setSpacing(10);
+    newGraphHBox.setSpacing(10);
     cbox.getSelectionModel().selectFirst();
     warning.setTextFill(Color.RED);
 
-    hbox.getChildren().add(cbox);
-    hbox.getChildren().add(input);
-    hbox.getChildren().add(button);
-    hbox.getChildren().add(warning);
+    editGraphHBox.getChildren().add(deleteButton);
+    editGraphHBox.getChildren().add(addButton);
+    newGraphHBox.getChildren().add(cbox);
+    newGraphHBox.getChildren().add(input);
+    newGraphHBox.getChildren().add(buildButton);
+    newGraphHBox.getChildren().add(warning);
+    getChildren().add(editGraphHBox);
     getChildren().add(new Label("Graph Builder"));
-    getChildren().add(hbox);
+    getChildren().add(newGraphHBox);
 
     cbox.setOnAction(new ComboBoxHandler());
-    button.setOnAction(new ButtonHandler());
+    buildButton.setOnAction(new BuildButtonHandler());
+    addButton.setOnAction(new EventHandler<ActionEvent> () {
+      public void handle(ActionEvent e) {
+        graphWrapper.addVertex();
+      }
+    });
+
+    deleteButton.setOnAction(new EventHandler<ActionEvent> () {
+      public void handle(ActionEvent e) {
+        graphWrapper.deleteVertex();
+      }
+    });
   }
 
   private class ComboBoxHandler implements EventHandler<ActionEvent> {
@@ -51,7 +74,7 @@ public class BuildPane extends VBox {
     }
   }
 
-  private class ButtonHandler implements EventHandler<ActionEvent> {
+  private class BuildButtonHandler implements EventHandler<ActionEvent> {
     public void handle(ActionEvent event) {
       Scanner scanner = new Scanner(input.getText());
       warning.setText("");
@@ -112,6 +135,21 @@ public class BuildPane extends VBox {
           else {
             graphWrapper.setGraph(Graph.emptyGraph(1));
           }
+          break;
+        case "mycielski":
+          if (scanner.hasNextInt()) {
+            int n = scanner.nextInt();
+            graphWrapper.setGraph(Graph.mycielskiGraph(n));
+          }
+          else {
+            warning.setText("bad parameters - no graph built");
+          }
+          break;
+        case "line":
+          graphWrapper.setGraph(graphWrapper.getGraph().getLineGraph());
+          break;
+        case "complement":
+          graphWrapper.setGraph(graphWrapper.getGraph().getComplement());
           break;
       }
     }

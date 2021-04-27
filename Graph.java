@@ -1,47 +1,68 @@
 import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.PriorityQueue;
 import java.util.LinkedList;
 import java.util.Comparator;
 
-public class Graph {
+public class Graph<V> {
   // instance variables ------------------------
   // ------------------------------------------- 
-  protected int[][] adjacencyMatrix; // this array is always bigger than the order of the graph in both dimensions
-  protected int order;               // order is the number of vertices in the graph
+  private int[][] adjacencyMatrix;  // this array is always bigger than the order of the graph in both dimensions
+  private int order;                // order is the number of vertices in the graph
+  private String cachedValues;      // this string contains a list of all the values that have been cached since the graph was last alterred
+  private List<V> vertexSet;        // this can be used by other classes to keep track of the vertices
 
   // constructors ------------------------------ 
   // ------------------------------------------- 
   public Graph() {
-    order = 1;
-    adjacencyMatrix = new int[2*order][2*order];
-  }
-  public Graph(int order) {
-    this.order = order;
-    adjacencyMatrix = new int[2*order][2*order];
+    this(1, new int[2][2], new ArrayList<V>(1));
   }
 
-  public Graph(int order, int[][] adjacencyMatrix) {
+  public Graph(int order) {
+    this(order, new int[2*order][2*order], new ArrayList<V>(order));
+  }
+
+  private Graph(int order, int[][] adjacencyMatrix, List<V> vertexSet) {
     this.order = order;
-    this.adjacencyMatrix = Arrays.copyOf(adjacencyMatrix, 2*order);
+    this.adjacencyMatrix = adjacencyMatrix;
+		this.vertexSet = vertexSet;
+    cachedValues = "";
   }
 
   // mutator methods --------------------------- 
   // ------------------------------------------- 
+  public void setVertexSet(List<V> newSet) {
+    vertexSet = newSet;
+  }
+
   public void deleteEdge(int v, int u) {
     adjacencyMatrix[v][u] = 0;
     adjacencyMatrix[u][v] = 0;
+    cachedValues = "";
   }
 
   public void deleteDirectedEdge(int v, int u) {
     adjacencyMatrix[v][u] = 0;
+    cachedValues = "";
+  }
+
+  public void swapVertices(int v, int u) {
+    int[] vN = adjacencyMatrix[v], uN = adjacencyMatrix[u];
+    adjacencyMatrix[v] = uN; adjacencyMatrix[u] = vN;
+    for (int i = 0; i < order; i++) {
+      int iv = adjacencyMatrix[i][v], iu = adjacencyMatrix[i][u];
+      adjacencyMatrix[i][v] = iu; adjacencyMatrix[i][u] = iv;
+    }
   }
 
   public void deleteVertex(int v) {
-    adjacencyMatrix[v] = adjacencyMatrix[order - 1]; // replace deleted vertex with last vertex
-    for (int i = 0; i < order; i++) {
-      adjacencyMatrix[i][v] = adjacencyMatrix[i][order - 1]; // replace deleted vertex with last vertex for all  neighborhoods
-    }
     order--; // deleted vertex means that the order decreases by 1
+    swapVertices(v, order);
+    vertexSet.set(v, vertexSet.get(order));
+    vertexSet.remove(order);
+    addNeighborhood(order, getNeighborhood(order), 0); // clear neighborhood of deleted vertex
+    cachedValues = "";
   }
 
   public void contractEdge(int v, int u) {
@@ -50,52 +71,116 @@ public class Graph {
       adjacencyMatrix[i][v] = Math.max(adjacencyMatrix[i][v], adjacencyMatrix[i][u]); // combine all edges into v and u
     }
     deleteVertex(u); // vertex u is now redundant with vertex v
+    cachedValues = "";
   }
 
-  public void addVertex() {
+  public void addVertex(V label) {
     order++;
     if (order >= adjacencyMatrix.length) {
       adjacencyMatrix = Arrays.copyOf(adjacencyMatrix, 2*order); // if adjacencyMatrix is not big enough, double it
-      for (int v = 0; v < order; v++) {
-        adjacencyMatrix[v] = Arrays.copyOf(adjacencyMatrix[v], 2*order); // also double all the neighborhood arrays
+      for (int v = 0; v < adjacencyMatrix.length; v++) {
+        try {
+          adjacencyMatrix[v] = Arrays.copyOf(adjacencyMatrix[v], 2*order); // also double all the neighborhood arrays
+        } catch (NullPointerException e) {
+          adjacencyMatrix[v] = new int[2*order];
+        }
       }
     }
+    vertexSet.add(label);
+    cachedValues = "";
+  }
+
+  public void addVertex() {
+    addVertex(null);
   }
 
   public void addEdge(int v, int u) {
     adjacencyMatrix[v][u] = 1;
     adjacencyMatrix[u][v] = 1;
+    cachedValues = "";
   }
 
   public void addDirectedEdge(int v, int u) {
     adjacencyMatrix[v][u] = 1;
+    cachedValues = "";
   }
 
   public void addEdge(int v, int u, int w) {
     adjacencyMatrix[v][u] = w;
     adjacencyMatrix[u][v] = w;
+    cachedValues = "";
   }
 
   public void addDirectedEdge(int v, int u, int w) {
     adjacencyMatrix[v][u] = w;
+    cachedValues = "";
   }
 
-  public void swapVertices(int v, int u) {
-    int[] vN = adjacencyMatrix[v], uN = adjacencyMatrix[u];
-    adjacencyMatrix[v] = uN; adjacencyMatrix[u] = vN;
+  public void addNeighborhood(int v, int[] us) {
+    for (int u : us) {
+      addEdge(v, u);
+    }
+    cachedValues = "";
+  }
+
+  public void addOutNeighborhood(int v, int[] us) {
+    for (int u : us) {
+      addDirectedEdge(v, u);
+    }
+    cachedValues = "";
+  }
+
+  public void addInNeighborhood(int v, int[] us) {
+    for (int u : us) {
+      addDirectedEdge(u, v);
+    }
+    cachedValues = "";
+  }
+
+  public void addNeighborhood(int v, int[] us, int w) {
+    for (int u : us) {
+      addEdge(v, u, w);
+    }
+    cachedValues = "";
+  }
+
+  public void addOutNeighborhood(int v, int[] us, int w) {
+    for (int u : us) {
+      addDirectedEdge(v, u, w);
+    }
+    cachedValues = "";
+  }
+
+  public void addInNeighborhood(int v, int[] us, int w) {
+    for (int u : us) {
+      addDirectedEdge(u, v, w);
+    }
+    cachedValues = "";
   }
 
   // graph quearies ---------------------------- 
   // ------------------------------------------- 
+  public int vertex2int (Vertex v) {
+    return vertexSet.indexOf(v);
+  }
+
+  private String string;
   public String toString() {
-    String edges = "";
-    for (int i = 0; i < order; i++) {
-      for (int j = 0; j < order; j++) {
-        edges = edges + getEdge(i,j) + "\t";
+    if (!cachedValues.contains("string")) {
+      string = "";
+      for (int i = 0; i < order; i++) {
+        for (int j = 0; j < order; j++) {
+          string = string + getEdge(i,j) + "\t";
+        }
+        string = string + "\n";
       }
-      edges = edges + "\n";
+      cachedValues = cachedValues + "string";
     }
-    return edges;
+    return string;
+  }
+
+  public List<V> getVertexSet() {
+    return vertexSet;
   }
 
   public boolean isAdjacent(int v, int u) {
@@ -110,16 +195,21 @@ public class Graph {
     return order;
   }
 
+  private int size;
   public int getSize() {
-    int degreeSum = 0;
-    for (int v = 0; v < order; v++) {
-      for (int u = 0; u < order; u++) {
-         if (0 != adjacencyMatrix[v][u]) {
-           degreeSum++;
-         }
+    if (!cachedValues.contains("size")) {
+      int degreeSum = 0;
+      for (int v = 0; v < order; v++) {
+        for (int u = 0; u < order; u++) {
+           if (0 != adjacencyMatrix[v][u]) {
+             degreeSum++;
+           }
+        }
       }
+      size = degreeSum / 2;
+      cachedValues = cachedValues + "size";
     }
-    return degreeSum / 2;
+    return size;
   }
 
   public int getDegree(int v) {
@@ -142,26 +232,38 @@ public class Graph {
     return degree; 
   }
 
+  private int minimumDegree;
   public int getMinimumDegree() {
-    int minDegree = Integer.MAX_VALUE; // start by assuming all vertices have infinite degree
-    for (int v = 0; v < order; v++) {
-      minDegree = Math.min(minDegree, getDegree(v)); // correct for every new vertex with lower degree
+    if (!cachedValues.contains("delta")) {
+      minimumDegree = Integer.MAX_VALUE; // start by assuming all vertices have infinite degree
+      for (int v = 0; v < order; v++) {
+        minimumDegree = Math.min(minimumDegree, getDegree(v)); // correct for every new vertex with lower degree
+      }
+      cachedValues = cachedValues + "delta";
     }
-    return minDegree;
+    return minimumDegree;
   }
 
+  private int maximumDegree;
   public int getMaximumDegree() {
-    int maxDegree = 0; // start by assuming all vertices have 0 degree
-    for (int v = 0; v < order; v++) {
-      maxDegree = Math.max(maxDegree, getDegree(v)); // correct for every new vertex with higher degree
+    if (!cachedValues.contains("Delta")) {
+      maximumDegree = 0; // start by assuming all vertices have 0 degree
+      for (int v = 0; v < order; v++) {
+        maximumDegree = Math.max(maximumDegree, getDegree(v)); // correct for every new vertex with higher degree
+      }
+      cachedValues = cachedValues + "Delta";
     }
-    return maxDegree;
+    return maximumDegree;
   }
 
+  private int[] degreeSequence;
   public int[] getDegreeSequence() {
-    int[]  degreeSequence = new int[order]; // as many degrees as vertices
-    for (int v = 0; v < order; v++) {
-      degreeSequence[v] = getDegree(v); // get degree for each vertex
+    if (!cachedValues.contains("degreeSequence")) {
+      degreeSequence = new int[order]; // as many degrees as vertices
+      for (int v = 0; v < order; v++) {
+        degreeSequence[v] = getDegree(v); // get degree for each vertex
+      }
+      cachedValues = cachedValues + "degreeSequence";
     }
     return degreeSequence; // I am not sorting the degree sequence from least to greatest
   }
@@ -169,6 +271,19 @@ public class Graph {
   public int[] getNeighborhood(int v) { // returns array of all vertices that are adjacent to v
     int degree = 0;
     int[] neighborhood = new int[order]; // maximum neighborhood size is the entire graph
+    for (int u = 0; u < order; u++) {
+      if (isAdjacent(v, u)) {
+        neighborhood[degree] = u; // add all adjacent vertices to neighborhood
+        degree++; // bigger neighborhood = bigger degree
+      }
+    }
+    return Arrays.copyOf(neighborhood, degree); // return smallest possible array 
+  }
+
+  public int[] getClosedNeighborhood(int v) { // returns array of all vertices that are adjacent to v
+    int degree = 1;
+    int[] neighborhood = new int[order]; // maximum neighborhood size is the entire graph
+    neighborhood[0] = v;
     for (int u = 0; u < order; u++) {
       if (isAdjacent(v, u)) {
         neighborhood[degree] = u; // add all adjacent vertices to neighborhood
@@ -235,34 +350,69 @@ public class Graph {
     return distances;
   }
 
+  private int girth;
   public int getGirth() {
-    for (int v = 0; v < order; v++) {
-      if (isAdjacent(v,v)) {
-        return 0;
-      }
-    }
-    Graph g = getCopy();
-    int girth = Integer.MAX_VALUE;
-    for (int v = 0; v < g.order; v++) {
-      for (int u : g.getNeighborhood(v)) {
-        g.deleteEdge(v, u);
-        girth = Math.min(girth - 1, g.getDistance(v, u)) + 1;
-        if (girth == 3) {
-          return girth;
+    if (!cachedValues.contains("girth")) {
+      Graph g = getCopy();
+      girth = Integer.MAX_VALUE;
+      for (int v = 0; v < g.order; v++) {
+        for (int u : g.getNeighborhood(v)) {
+          g.deleteEdge(v, u);
+          girth = Math.min(girth - 1, g.getDistance(v, u)) + 1;
+          if (girth == 3) {
+            cachedValues = cachedValues + "girth";
+            return girth;
+          }
         }
       }
+      cachedValues = cachedValues + "girth";
     }
     return girth;
   }
 
+  private int diameter;
   public int getDiameter() {
-    int diameter = 0;
-    for (int i = 0; i < order; i++) {
-      for (int j = 0; j < order; j++) {
-        diameter = Math.max(diameter, getDistance(i,j));
+    if (!cachedValues.contains("diameter")) {
+      diameter = 0;
+      for (int i = 0; i < order; i++) {
+        for (int j = 0; j < order; j++) {
+          diameter = Math.max(diameter, getDistance(i,j));
+        }
       }
+      cachedValues = cachedValues + "diameter";
     }
     return diameter;
+  }
+
+  public boolean isClique() {
+    for (int v = 0; v < order; v++) {
+      for (int u = 0; u < order; u++) {
+        if (!(v == u || isAdjacent(v, u))) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  public int getCliqueNumber(int v) {
+    int[] neighbors = getNeighborhood(v);
+    return getInducedSubgraph(neighbors).getCliqueNumber() + 1;
+  }
+
+  public int getCliqueNumber() {
+    if (isClique()) {
+      return order;
+    }
+    int omega = 1;
+    for (int v = 0; v < order; v++) {
+      omega = Math.max(omega, getCliqueNumber(v));
+    }
+    return omega;
+  }
+
+  public int getCocliqueNumber(int v) {
+    return getComplement().getCliqueNumber();
   }
 
   public boolean isConnected(int v, int u) {
@@ -402,8 +552,8 @@ public class Graph {
   public Graph getComplement() { // creates a copy of the graph where all the edges become non-edges and all the non-edges become eddges
     Graph complement = new Graph(order); // the constructor creates the empty graph order n by default
     for (int i = 0; i < order; i++) {
-      for (int j = 0; j < order; j++) {
-        if (!isAdjacent(i, j)) {
+      for (int j = i+1; j < order; j++) {
+        if (!isAdjacent(i, j) && i != j) {
           complement.addEdge(i,j); // only add edges for non-edges
         }
       }
@@ -446,6 +596,7 @@ public class Graph {
   }
 
   public Graph getLineGraph() {
+    if (1 == order) {return new Graph();}
     boolean[][] visited = new boolean[order][order];
     int[] edgeStart = new int[order*order];
     int[] edgeEnd = new int[order*order];
@@ -509,7 +660,7 @@ public class Graph {
   }
 
   public static Graph graphSum(Graph g1, Graph g2, int shift) {
-    Graph h = new Graph(g1.getOrder() + g2.getOrder() + shift);
+    Graph h = new Graph(Math.max(g1.getOrder(), g2.getOrder() + shift));
     for (int i = 0; i < g1.getOrder(); i++) {
       for (int j = 0; j < g1.getOrder(); j++) {
         h.addEdge(i, j, g1.getEdge(i,j));
@@ -570,14 +721,28 @@ public class Graph {
   public static Graph petersonGraph(int n, int k) {
     Graph g = new Graph(2 * n);
     for (int i = 0; i < n; i++) {
-      g.addEdge(i, (i+1) % n);
-      g.addEdge(i, i+n);
-      g.addEdge(i + n, ((i+k) % n) + n);
+      g.addEdge(i, (i + 1) % n);
+      g.addEdge(i, i + n);
+      g.addEdge(i + n, ((i + k) % n) + n);
     }
     return g;
   }
 
   public static Graph petersonGraph() {
     return petersonGraph(5,2);
+  }
+
+  public static Graph mycielskiGraph(int n) {
+    if (2 >= n) {
+      return completeGraph(2);
+    }
+    Graph g = mycielskiGraph(n - 1);
+    int m = g.getOrder();
+    Graph h = completeGraph(m, 1);
+    Graph s = graphSum(g, h, m);
+    for (int v = 0; v < m; v++) {
+      s.addNeighborhood(v + m, g.getNeighborhood(v));
+    }
+    return s;
   }
 }
