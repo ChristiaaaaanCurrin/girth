@@ -8,9 +8,9 @@ import java.util.Comparator;
 public class Graph<V> {
   // instance variables ------------------------
   // ------------------------------------------- 
-  private int[][] adjacencyMatrix;  // this array is always bigger than the order of the graph in both dimensions
+  private int[][] adjacencyMatrix;  // always bigger than the order of the graph in both dimensions
   private int order;                // order is the number of vertices in the graph
-  private String cachedValues;      // this string contains a list of all the values that have been cached since the graph was last alterred
+  private String cachedValues;      // contains a list of all the values that have been cached since the graph was last alterred
   private List<V> vertexSet;        // this can be used by other classes to keep track of the vertices
 
   // constructors ------------------------------ 
@@ -57,8 +57,8 @@ public class Graph<V> {
   }
 
   public void deleteVertex(int v) {
+    swapVertices(v, order-1);
     order--; // deleted vertex means that the order decreases by 1
-    swapVertices(v, order);
     vertexSet.set(v, vertexSet.get(order));
     vertexSet.remove(order);
     addNeighborhood(order, getNeighborhood(order), 0); // clear neighborhood of deleted vertex
@@ -177,6 +177,17 @@ public class Graph<V> {
       cachedValues = cachedValues + "string";
     }
     return string;
+  }
+
+  public String fullArray() {
+    String fullString = "";
+    for (int i = 0; i < adjacencyMatrix.length; i++) {
+      for (int j = 0; j < adjacencyMatrix[i].length; j++) {
+        fullString = fullString + getEdge(i,j) + "\t";
+      }
+      fullString = fullString + "\n";
+    }
+    return fullString;
   }
 
   public List<V> getVertexSet() {
