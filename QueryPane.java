@@ -1,13 +1,7 @@
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.collections.FXCollections;
-import javafx.event.EventHandler;
-import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import java.util.Arrays;
-import java.util.ArrayList
 
 public class QueryPane extends VBox implements Listener {
   private GraphWrapper graphWrapper;
@@ -18,37 +12,28 @@ public class QueryPane extends VBox implements Listener {
     graphWrapper = gw;
     setSpacing(10);
     setPadding(new Insets(10));
-    numResults = 11;
-
-    Label title = new Label("==========Graph Details==========");
-    getChildren().add(title);
-
-    results = new Label[numResults];
-    for (int i = 0; i < numResults; i++) {
-      Label label = new Label("");
-      results[i] = label;
-      getChildren().add(label);
-    }
     initialize();
   }
 
   public void update() {
     Graph<Vertex> graph = graphWrapper.getGraph();
-    results[0].setText("order: " + new Integer(graph.getOrder()).toString());
-    results[1].setText("size: " + new Integer(graph.getSize()).toString());
-    results[2].setText("minimum degree: " + new Integer(graph.getMinimumDegree()).toString());
-    results[3].setText("maximum degree: " + new Integer(graph.getMaximumDegree()).toString());
+    getChildren().clear();
+    getChildren().add(new Label("==========Graph Details=========="));
+    getChildren().add(new Label("order: " + new Integer(graph.getOrder()).toString()));
+    getChildren().add(new Label("size: " + new Integer(graph.getSize()).toString()));
+    getChildren().add(new Label("minimum degree: " + new Integer(graph.getMinimumDegree()).toString()));
+    getChildren().add(new Label("maximum degree: " + new Integer(graph.getMaximumDegree()).toString()));
     if (graph.isForest()) {
-      results[4].setText("graph is acyclic");
+      getChildren().add(new Label("graph is acyclic"));
     } else {
-      results[4].setText("girth: " + new Integer(graph.getGirth()).toString());
+      getChildren().add(new Label("girth: " + new Integer(graph.getGirth()).toString()));
     }
     if (graph.isConnected()) {
-      results[5].setText("diameter: " + new Integer(graph.getDiameter()).toString());
+      getChildren().add(new Label("diameter: " + new Integer(graph.getDiameter()).toString()));
     } else {
-      results[5].setText("graph is not connected");
+      getChildren().add(new Label("graph is not connected"));
     }
-    results[6].setText("clique number: " + new Integer(graph.getCliqueNumber()).toString());
+    getChildren().add((new Label("clique number: " + new Integer(graph.getCliqueNumber()).toString())));
     int [] selectedVertices = new int[graph.getOrder()];
     int selected = 0;
     for (Vertex v : graph.getVertexSet()) {
@@ -58,21 +43,21 @@ public class QueryPane extends VBox implements Listener {
       }
     }
     selectedVertices = Arrays.copyOf(selectedVertices, selected);
-    results[7].setText("selected: " + selected);
+    getChildren().add(new Label("selected: " + selected));
     if (graph.isClique(selectedVertices)) {
-      results[8].setText("the selected vertices are a clique");
+      getChildren().add(new Label("the selected vertices are a clique"));
     } else {
-      results[8].setText("the selected vertices are not a clique");
+      getChildren().add(new Label("the selected vertices are not a clique"));
     }
     if (graph.isCoclique(selectedVertices)) {
-      results[9].setText("the selected vertices are a coclique");
+      getChildren().add(new Label("the selected vertices are a coclique"));
     } else {
-      results[9].setText("the selected vertices are not a coclique");
+      getChildren().add(new Label("the selected vertices are not a coclique"));
     }
     if (graph.isConnected(selectedVertices)) {
-      results[10].setText("the selected vertices are connected");
+      getChildren().add(new Label("the selected vertices are connected"));
     } else {
-      results[10].setText("the selected vertices are not connected");
+      getChildren().add(new Label("the selected vertices are not connected"));
     }
   }
 
