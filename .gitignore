@@ -11,7 +11,7 @@
 # Java class files
 *.class
 
-# Picture and Moview files
+# Picture and Movie files
 *.png
 *.mov
 

@@ -7,6 +7,7 @@ import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import java.util.Arrays;
+import java.util.ArrayList
 
 public class QueryPane extends VBox implements Listener {
   private GraphWrapper graphWrapper;
@@ -17,7 +18,7 @@ public class QueryPane extends VBox implements Listener {
     graphWrapper = gw;
     setSpacing(10);
     setPadding(new Insets(10));
-    numResults = 10;
+    numResults = 11;
 
     Label title = new Label("==========Graph Details==========");
     getChildren().add(title);
@@ -67,6 +68,11 @@ public class QueryPane extends VBox implements Listener {
       results[9].setText("the selected vertices are a coclique");
     } else {
       results[9].setText("the selected vertices are not a coclique");
+    }
+    if (graph.isConnected(selectedVertices)) {
+      results[10].setText("the selected vertices are connected");
+    } else {
+      results[10].setText("the selected vertices are not connected");
     }
   }
 

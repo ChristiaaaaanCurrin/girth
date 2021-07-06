@@ -3,14 +3,13 @@ JAVAFX_MODULE=--module-path javafx-sdk-11.0.2/lib --add-modules ALL-MODULE-PATH
 .PHONY: test main clean package
 
 clean:
-	rm *.class
-	rm *.jar
+	rm -f *.class
 
 test: Graph.class
 	java test/GraphTester.java<test/input.txt> test/output.txt
 	diff test/key.txt test/output.txt
 
-%.class: %.java
+%.class: %.java clean
 	javac $(JAVAFX_MODULE) $<
 
 main: Girth.class

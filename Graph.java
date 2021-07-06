@@ -488,6 +488,17 @@ public class Graph<V> {
     return true;
   }
 
+  public boolean isConnected(int [] vertices) {
+    for (int i = 0; i < vertices.length; i++) {
+      for (int j = i+1; j < vertices.length; j++) {
+        if (!isConnected(vertices[i], vertices[j])) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+ 
   public int[] getComponent(int v) {
     boolean[] visited = new boolean[order];
     LinkedList<Integer> visiting = new LinkedList();
@@ -737,6 +748,13 @@ public class Graph<V> {
     return g;
   }
 
+  public static Graph loopGraph(int n) {
+    Graph g = new Graph(n);
+    for (int i = 0; i < n; i++) {
+      g.addEdge(i, i);
+    }
+    return g;
+  }
   public static Graph pathGraph(int n) {
     Graph g = new Graph(n);
     for (int i = 1; i < n; i++) {

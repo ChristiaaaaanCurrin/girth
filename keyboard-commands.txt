@@ -1,0 +1,24 @@
+
+H        show help / hide help
+N        show details / hide details
+B        show graph builder / hide graph builder
+^F       full screen / exit full screen
+F11      full screen / exit full screen
+Cmd F    full screen / exit full screen
+^Cmd F   full screen / exit full screen
+Esc      exit full screen
+
+^A       select all
+^Shift A invert selection
+D        delete vertices
+V        add vertex
+C        complete subgraph
+E        empty subgraph
+L        loop vertices
+
+Shift D  delete mode
+Shift V  add vertex mode
+Shift C  complete mode
+Shift E  empty mode
+Shift S  selection mode
+         

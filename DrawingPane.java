@@ -37,6 +37,8 @@ public class DrawingPane extends Canvas implements Listener {
         if (i < j) {
           Vertex u = getVertex(j);
           gc.strokeLine(v.getX(), v.getY(), u.getX(), u.getY());
+        } else if (i == j) {
+          gc.strokeOval(v.getX(), v.getY() - 2 * v.getRadius(), 4 * v.getRadius(), 4 * v.getRadius());
         }
       }
       if (v.isSelected()) {gc.setFill(SELECTED_COLOR);}
@@ -52,7 +54,7 @@ public class DrawingPane extends Canvas implements Listener {
     Vertex v;
     List<Vertex> vs = graphWrapper.getGraph().getVertexSet();
     if((v = vs.get(i)) == null){
-      v = new Vertex(10, 10, 10);
+      v = new Vertex(10, 10, VERTEX_RADIUS);
       vs.set(i, v);
     }
     return v;
