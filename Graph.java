@@ -406,6 +406,28 @@ public class Graph<V> {
     return true;
   }
 
+  public boolean isClique(int[] vs) {
+    for (int v : vs) {
+      for (int u : vs) {
+        if (!(v == u || isAdjacent(v, u))) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  public boolean isCoclique(int[] vs) {
+    for (int v : vs) {
+      for (int u : vs) {
+        if (isAdjacent(v, u)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   public int getCliqueNumber(int v) {
     int[] neighbors = getNeighborhood(v);
     return getInducedSubgraph(neighbors).getCliqueNumber() + 1;

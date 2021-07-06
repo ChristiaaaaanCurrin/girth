@@ -6,6 +6,7 @@ import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.text.Font;
 
 public class DrawingPane extends Canvas implements Listener {
   private GraphWrapper graphWrapper;
@@ -40,6 +41,9 @@ public class DrawingPane extends Canvas implements Listener {
       }
       if (v.isSelected()) {gc.setFill(SELECTED_COLOR);}
       gc.fillOval(v.getX() - v.getRadius(), v.getY() - v.getRadius(), 2 * v.getRadius(), 2 * v.getRadius());
+      gc.setFill(EDGE_COLOR);
+      gc.setFont(new Font(10));
+      gc.fillText(v.getLabel(), v.getX(), v.getY());
       gc.setFill(VERTEX_COLOR); gc.setStroke(EDGE_COLOR);
     }
   }
@@ -79,6 +83,10 @@ public class DrawingPane extends Canvas implements Listener {
           return;
         }
       }
+      for (Vertex v : vs) {
+        v.setSelect(false);
+      }
+      graphWrapper.update();
     }
   }
 
@@ -106,6 +114,10 @@ public class DrawingPane extends Canvas implements Listener {
           return;
         }
       }
+      for (Vertex v : vs) {
+        v.setSelect(false);
+      }
+      graphWrapper.update();
     }
   }
 

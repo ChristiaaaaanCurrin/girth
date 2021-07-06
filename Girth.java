@@ -31,7 +31,7 @@ public class Girth extends Application {
     rootPane.setBottom(buildPane);
 
     // Create a scene and place rootPane in the stage
-    Scene scene = new Scene(rootPane, 630, 540);
+    Scene scene = new Scene(rootPane, 830, 540);
     primaryStage.setTitle("girth");
     primaryStage.setScene(scene); // Place the scene in the stage
     primaryStage.show(); // Display the stage

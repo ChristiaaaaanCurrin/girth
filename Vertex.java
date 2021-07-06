@@ -25,6 +25,7 @@ public class Vertex {
   public double getY() {return yCoord;}
   public double getRadius() {return radius;}
   public boolean isSelected() {return selected;}
+  public String getLabel() {return label;}
   
   public void setCoords(double x, double y) {
     xCoord = x;
@@ -41,5 +42,9 @@ public class Vertex {
 
   public void toggleSelect() {
     selected = !selected;
+  }
+
+  public void setLabel(String newLabel) {
+    label = newLabel;
   }
 }
