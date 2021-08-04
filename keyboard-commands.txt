@@ -6,19 +6,21 @@ B        show graph builder / hide graph builder
 F11      full screen / exit full screen
 Cmd F    full screen / exit full screen
 ^Cmd F   full screen / exit full screen
-Esc      exit full screen
 
-^A       select all
-^Shift A invert selection
-D        delete vertices
-V        add vertex
-C        complete subgraph
-E        empty subgraph
-L        loop vertices
+^Z       undo !!! REQUIRES HISTORY, WHICH WE DON'T HAVE !!!
+^Shift Z redo !!! REQUIRES HISTORY, WHICH WE DON'T HAVE !!!
+--^A       select all
+--^Shift A invert selection
+--Esc      deselect all & selection mode
+--A        add vertex
+--D        delete vertices
+--C        complete subgraph
+--E        empty subgraph
+--L        loop vertices
 
-Shift D  delete mode
-Shift V  add vertex mode
-Shift C  complete mode
-Shift E  empty mode
-Shift S  selection mode
-         
+--Shift S  mode 0 select
+--Shift A  mode 1 add
+--Shift D  mode 2 delete
+--Shift C  mode 3 complete
+--Shift E  mode 4 empty    
+--Shift L  mode 5 loop

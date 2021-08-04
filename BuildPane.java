@@ -57,7 +57,7 @@ public class BuildPane extends VBox {
     buildButton.setOnAction(new BuildButtonHandler());
     addButton.setOnAction(new EventHandler<ActionEvent> () {
       public void handle(ActionEvent e) {
-        graphWrapper.addVertex();
+        graphWrapper.addVertex(new Vertex(10, 10, 10));
       }
     });
 
