@@ -31,7 +31,7 @@ public class BuildPane extends VBox {
     state = "complete";
     HBox newGraphHBox = new HBox();
     cbox = new ComboBox(FXCollections.observableArrayList("complete", "cycle", "path", "peterson", "empty", "mycielski",
-                                                          "line", "complement"));
+                                                          "line", "complement", "normal tree", "induced subgraph"));
     input = new TextField();
     buildButton = new Button("build graph");
     warning = new Label("");
@@ -150,6 +150,12 @@ public class BuildPane extends VBox {
           break;
         case "complement":
           graphWrapper.setGraph(graphWrapper.getGraph().getComplement());
+          break;
+        case "normal tree":
+          graphWrapper.setGraph(graphWrapper.getGraph().getNormalSpanningTree(0));
+          break;
+        case "induced subgraph":
+          graphWrapper.inducedSubgraph();
           break;
       }
     }

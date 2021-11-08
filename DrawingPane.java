@@ -51,10 +51,12 @@ public class DrawingPane extends Canvas implements Listener {
       gc.fillText(v.getLabel(), v.getX(), v.getY());
       gc.setFill(VERTEX_COLOR); gc.setStroke(EDGE_COLOR);
     }
+    gc.fillRect(0, 0, 10, 10 + 10 * mode);
   }
 
   public void setMode(int newMode) {
     mode = newMode;
+    update();
   }
 
   public int getMode() {
@@ -86,6 +88,7 @@ public class DrawingPane extends Canvas implements Listener {
 
   private class MouseClickHandler implements EventHandler<MouseEvent> {
     public void handle(MouseEvent e) {
+      requestFocus();
       Graph<Vertex> g = graphWrapper.getGraph();
       List<Vertex> vs = g.getVertexSet();
       double xe = e.getX(), ye = e.getY();
@@ -172,7 +175,7 @@ public class DrawingPane extends Canvas implements Listener {
 
   private class MousePressHandler implements EventHandler<MouseEvent> {
     public void handle(MouseEvent e) {
-      if (mode != 0) {return;}
+      if (mode == 1 || mode == 2) {return;}
       List<Vertex> vs = graphWrapper.getGraph().getVertexSet();
       double xe = e.getX(), ye = e.getY();
       for (Vertex v : vs) {
@@ -227,28 +230,28 @@ public class DrawingPane extends Canvas implements Listener {
       } else if (e.isShiftDown()) {
         switch (e.getCode()) {
           case S:
-            mode = 0;
+            setMode(0);
             break;
           case A:
-            mode = 1; 
+            setMode(1); 
             break;
           case D:
-            mode = 2; 
+            setMode(2); 
             break;
           case C:
-            mode = 3; 
+            setMode(3); 
             break;
           case E:
-            mode = 4; 
+            setMode(4); 
             break;
           case L:
-            mode = 5; 
+            setMode(5); 
             break;
         } 
       } else {
         switch (e.getCode()) {
           case A:
-            graphWrapper.addVertex();
+            graphWrapper.addVertex(new Vertex(getWidth() / 2, getHeight() / 2, VERTEX_RADIUS ));
             break;
           case D:
             graphWrapper.deleteVertex();
@@ -263,9 +266,12 @@ public class DrawingPane extends Canvas implements Listener {
             graphWrapper.loopVertex();
             break;
           case ESCAPE:
-            mode = 0;
-            for (Vertex v : vs) {
-              v.setSelect(false);
+            if (getMode() == 0) {
+              for (Vertex v : vs) {
+                v.setSelect(false);
+              }
+            } else {
+              setMode(0);
             }
             graphWrapper.update();
             break;

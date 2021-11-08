@@ -123,6 +123,14 @@ public class GraphWrapper {
     }
     update();
   }
+  
+  public void inducedSubgraph() {
+    for (Vertex v : graph.getVertexSet()) {
+      if (!v.isSelected()) {
+        deleteVertex(v);
+      }
+    }
+  }
 
   public Graph getGraph() {
     return graph;
